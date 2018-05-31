@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+	<assemblyIdentity
+        type="win32"
+        name="MyRegFreeCOMSrv"
+        version="1.0.0.0" />
+
+  <!-- 自分自身がもっているCOMの情報についてマニフェストにアセンブリとして登録する -->
+  <file name="MyRegFreeCOMSrv.dll">
+    <typelib tlbid="{CE20ECF4-B344-49DE-AD01-CDCF7098108D}"
+          version="1.0" helpdir="" flags="HASDISKIMAGE"/>
+    <comClass
+          clsid="{4475E395-FA5A-42A3-901C-F3062802B9B2}"
+          threadingModel="Apartment"
+          tlbid="{CE20ECF4-B344-49DE-AD01-CDCF7098108D}"
+          progid="MyRegFreeCOMSrv">
+      <progid>MyRegFreeCOMSrv.1</progid>
+    </comClass>
+    <comClass
+          clsid="{3E607578-2BAB-40B2-97C4-662B7675E194}"
+          threadingModel="Apartment"
+          tlbid="{CE20ECF4-B344-49DE-AD01-CDCF7098108D}"
+          progid="MyRegFreeCOMDotnetSrv">
+      <progid>MyRegFreeCOMDotnetSrv.1</progid>
+    </comClass>
+
+    <!-- カスタムインターフェイスの場合で、スレッドアパートメントが異なる場合はマーシャリングが必要なため、
+      DLLがProxy/Stubをマージしている場合は、このDLLを示す<file>要素の子として、comInterfaceProxyStubの定義が必要。
+      (Proxy/Stubが別DLLの場合は、*PS.DLLの<file>要素の子として作成する。)
+    <comInterfaceProxyStub name="ISxSCustom" iid="{[IID_ISxSCustom]}" />
+    -->
+    
+  </file>
+
+  <!-- comInterfaceExternalProxyStubは、
+  IDispatch派生クラスでスレッドアパートメントの互換性がない場合のマーシャリングのために使われる
+  -->
+  <comInterfaceExternalProxyStub
+   name="_IMyRegFreeCOMSrvEvents"
+   iid="{8C11D374-E2BF-4DEF-89AB-81756137C1D0}"
+   tlbid="{ECEF3763-1C5F-41A9-AD2D-6BBD335F576C}"
+   proxyStubClsid32="{00020420-0000-0000-C000-000000000046}"/>
+
+  <comInterfaceExternalProxyStub
+   name="IMyRegFreeCOMSrv"
+   iid="{E17C4111-F731-44E6-B262-D45D1241DD75}"
+   tlbid="{ECEF3763-1C5F-41A9-AD2D-6BBD335F576C}"
+   proxyStubClsid32="{00020420-0000-0000-C000-000000000046}"/>
+
+
+  <comInterfaceExternalProxyStub
+   name="_IMyRegFreeCOMDotnetSrvEvents"
+   iid="{D46EBB6F-9F7E-479D-9D4A-BD5E85766B88}"
+   tlbid="{ECEF3763-1C5F-41A9-AD2D-6BBD335F576C}"
+   proxyStubClsid32="{00020420-0000-0000-C000-000000000046}"/>
+
+  <comInterfaceExternalProxyStub
+   name="IMyRegFreeCOMDotnetSrv"
+   iid="{63E19300-A485-4F5C-A9A6-5CC3009145A6}"
+   tlbid="{ECEF3763-1C5F-41A9-AD2D-6BBD335F576C}"
+   proxyStubClsid32="{00020420-0000-0000-C000-000000000046}"/>
+
+</assembly>

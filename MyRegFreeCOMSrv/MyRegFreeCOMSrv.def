@@ -1,0 +1,5 @@
+LIBRARY "MyRegFreeCOMSrv"
+
+EXPORTS
+	DllCanUnloadNow PRIVATE
+	DllGetClassObject PRIVATE

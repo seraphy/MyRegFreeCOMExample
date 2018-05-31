@@ -1,0 +1,34 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+[dual, uuid(E17C4111-F731-44E6-B262-D45D1241DD75)]
+interface IMyRegFreeCOMSrv : IDispatch
+{
+	[propget, id(1)] HRESULT Name([out, retval] BSTR* pVal);
+	[propput, id(1)] HRESULT Name([in] BSTR newVal);
+	[id(2)] HRESULT ShowHello();
+};
+
+[uuid(CE20ECF4-B344-49DE-AD01-CDCF7098108D), version(1.0)]
+library MyRegFreeCOMSrvLib
+{
+	importlib("stdole32.tlb");
+
+	[
+		uuid(8C11D374-E2BF-4DEF-89AB-81756137C1D0)
+	]
+	dispinterface _IMyRegFreeCOMSrvEvents
+	{
+	properties:
+	methods:
+		[id(1)] HRESULT NamePropertyChanging([in] BSTR Name,[in, out] VARIANT_BOOL *pCancel);
+		[id(2)] HRESULT NamePropertyChanged([in] BSTR Name);
+	};
+
+	[uuid(4475E395-FA5A-42A3-901C-F3062802B9B2)]
+	coclass MyRegFreeCOMSrv
+	{
+		[default] interface IMyRegFreeCOMSrv;
+		[default, source] dispinterface _IMyRegFreeCOMSrvEvents;
+	};
+}
