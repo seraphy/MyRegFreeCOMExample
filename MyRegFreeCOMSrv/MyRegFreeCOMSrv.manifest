@@ -48,17 +48,4 @@
    tlbid="{ECEF3763-1C5F-41A9-AD2D-6BBD335F576C}"
    proxyStubClsid32="{00020420-0000-0000-C000-000000000046}"/>
 
-
-  <comInterfaceExternalProxyStub
-   name="_IMyRegFreeCOMDotnetSrvEvents"
-   iid="{D46EBB6F-9F7E-479D-9D4A-BD5E85766B88}"
-   tlbid="{ECEF3763-1C5F-41A9-AD2D-6BBD335F576C}"
-   proxyStubClsid32="{00020420-0000-0000-C000-000000000046}"/>
-
-  <comInterfaceExternalProxyStub
-   name="IMyRegFreeCOMDotnetSrv"
-   iid="{63E19300-A485-4F5C-A9A6-5CC3009145A6}"
-   tlbid="{ECEF3763-1C5F-41A9-AD2D-6BBD335F576C}"
-   proxyStubClsid32="{00020420-0000-0000-C000-000000000046}"/>
-
 </assembly>

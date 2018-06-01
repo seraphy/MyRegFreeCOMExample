@@ -31,4 +31,12 @@ library MyRegFreeCOMSrvLib
 		[default] interface IMyRegFreeCOMSrv;
 		[default, source] dispinterface _IMyRegFreeCOMSrvEvents;
 	};
+
+	/* DOTNET‚É‚æ‚éCOM‚ÌŽÀ‘•—á */
+	[uuid(3E607578-2BAB-40B2-97C4-662B7675E194)]
+	coclass MyRegFreeCOMDotnetSrv
+	{
+		[default] interface IMyRegFreeCOMSrv;
+		[default, source] dispinterface _IMyRegFreeCOMSrvEvents;
+	};
 }

@@ -5,11 +5,11 @@ Set actctx = CreateObject("Microsoft.Windows.ActCtx")
 actctx.manifest = "client.manifest"
 
 Dim obj
-Set obj = actctx.CreateObject("MyRegFreeCOMSrv.1")
-WScript.ConnectObject obj, "obj_"
+Set obj = actctx.CreateObject("MyRegFreeCOMSrv.1") ' ネイティブC++のCOMサーバを使う場合
+'Set obj = actctx.CreateObject("MyRegFreeCOMDotnetSrv.1") ' DotNETクラスのCOMサーバを使う場合
 
-' DotNETクラスのCOMサーバを使う場合 (ただし、ConnectObjectで接続できない。)
-'Set obj = actctx.CreateObject("MyRegFreeCOMDotnetSrv.1")
+' イベントの接続
+WScript.ConnectObject obj, "obj_"
 
 obj.Name = "PiyoPiyo"
 obj.ShowHello()

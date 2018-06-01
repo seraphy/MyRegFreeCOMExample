@@ -6,7 +6,7 @@
 #include <comdef.h>
 #include <map>
 
-#include<vcclr.h>  
+#include <vcclr.h>  
 
 #include "MyRegFreeCOMSrv_h.h"
 
@@ -53,6 +53,7 @@ private:
 public:
 	MyRegFreeCOMSrv()
 		: m_refCount(0)
+		, m_bstrName(L"FooBar1")
 	{
 	}
 
@@ -412,16 +413,18 @@ public:
 
 
 /*****************************************************/
-#pragma region DotNETのマネージドクラスによるCOMオブジェクトの作成例 (イベントは実装してみたが、接続ができないので使えない。)
+#pragma region DotNETのマネージドクラスによるCOMオブジェクトの作成例(イベントの接続も可)
 
 using namespace System::Runtime::InteropServices;
 
 /**
  * マネージドのインターフェイスの定義
+ * ネイティブのIMyRegFreeCOMSrvと同じ定義をDotNETで表現している。
+ * (名前が衝突するのでリネームしているがIIDは同じ)
  */
 [ComVisible(true)]
 [InterfaceType(System::Runtime::InteropServices::ComInterfaceType::InterfaceIsDual)]
-[Guid("63E19300-A485-4F5C-A9A6-5CC3009145A6")]
+[Guid("E17C4111-F731-44E6-B262-D45D1241DD75")]
 public interface class IMyRegFreeCOMDotnetSrv {
 	[DispId(1)]
 	virtual property System::String ^ Name;
@@ -430,72 +433,54 @@ public interface class IMyRegFreeCOMDotnetSrv {
 	virtual void ShowHello();
 };
 
-// {63E19300-A485-4F5C-A9A6-5CC3009145A6}
-static const GUID IID_IMyRegFreeCOMDotnetSrv =
-{ 0x63e19300, 0xa485, 0x4f5c,{ 0xa9, 0xa6, 0x5c, 0xc3, 0x0, 0x91, 0x45, 0xa6 } };
-
 /**
  * マネージドのイベントソースの定義
+ * ネイティブの_IMyRegFreeCOMSrvEventsと同じ定義をDotNETで表現している。
+ * (名前が衝突するのでリネームしているがDIIDは同じ)
  */
 [ComVisible(true)]
 [InterfaceType(System::Runtime::InteropServices::ComInterfaceType::InterfaceIsIDispatch)]
-[Guid("D46EBB6F-9F7E-479D-9D4A-BD5E85766B88")]
+[Guid("8C11D374-E2BF-4DEF-89AB-81756137C1D0")]
 public interface class _IMyRegFreeCOMDotnetSrvEvents {
 	[DispId(1)]
-	virtual HRESULT NamePropertyChanging([In] System::String^ name, [In, Out] System::Boolean *pCancel);
+	virtual void NamePropertyChanging([In] System::String^ name, [In, Out] System::Boolean %pCancel);
 
 	[DispId(2)]
-	virtual HRESULT NamePropertyChanged([In] System::String^ name);
+	virtual void NamePropertyChanged([In] System::String^ name);
 };
 
-// {D46EBB6F-9F7E-479D-9D4A-BD5E85766B88}
-static const GUID DIID__IMyRegFreeCOMDotnetSrvEvents =
-{ 0xd46ebb6f, 0x9f7e, 0x479d,{ 0x9d, 0x4a, 0xbd, 0x5e, 0x85, 0x76, 0x6b, 0x88 } };
-
-public delegate void NamePropertyChangingDelegate(System::String^ name, System::Boolean *pCancel);
+// イベントで使うデリゲートは、イベントソースのメソッドと完全に一致させること
+// (またByRef引数では値のポインタ(*)ではなく追跡参照 (%)指定とすること。)
+public delegate void NamePropertyChangingDelegate(System::String^ name, System::Boolean %pCancel);
 public delegate void NamePropertyChangedDelegate(System::String^ name);
-
-// DotNETのCOMでIProvideClassInfo2の明示的実装を試みるが、うまく行かなかったのでコメントアウト
-//namespace Interop
-//{
-//	[ComImport()]
-//	[InterfaceType(System::Runtime::InteropServices::ComInterfaceType::InterfaceIsIUnknown)]
-//	[Guid("B196B286-BAB4-101A-B69C-00AA00341D07")]
-//	public interface class IProvideClassInfo
-//	{
-//		virtual int GetClassInfo([Out] System::IntPtr *ppTI);
-//	};
-//
-//	[ComImport()]
-//	[Guid("A6BC3AC0-DBAA-11CE-9DE3-00AA004BB851")]
-//	public interface class IProvideClassInfo2 : public IProvideClassInfo
-//	{
-//		virtual int GetGUID(DWORD dwGuidKind, [Out] GUID *pGuid);
-//	};
-//}
 
 /**
  * マネージドのCOMクラスの実装
  */
 [ComVisible(true)]
 [ClassInterface(System::Runtime::InteropServices::ClassInterfaceType::None)]
-[Guid("3E607578-2BAB-40B2-97C4-662B7675E194")]
+[Guid("3E607578-2BAB-40B2-97C4-662B7675E194")] // CLSIDはネイティブとDotNETクラスとで別実装なので別IDとしている。
 [ComSourceInterfaces(_IMyRegFreeCOMDotnetSrvEvents::typeid)] // イベント
-public ref class MyRegFreeCOMDotnetSrv
+public ref class MyRegFreeCOMDotnetSrvImpl // MDILで生成されるMyRegFreeCOMDotnetSrvと衝突するので名前を変更する
 	: public IMyRegFreeCOMDotnetSrv
-	//, public Interop::IProvideClassInfo2
 {
 private:
 	System::String^ m_Name;
 
 public:
+	MyRegFreeCOMDotnetSrvImpl()
+		: m_Name(L"FooBar2")
+	{
+
+	}
+
 	virtual property System::String ^Name {
 		System::String^ get() {
 			return m_Name;
 		}
 		void set(System::String^ val) {
 			System::Boolean cancel = false;
-			NamePropertyChanging(val, &cancel);
+			NamePropertyChanging(val, cancel); // この追跡参照で、VBAのイベントハンドリングからはByRefの返却値を受け取れる
 			if (!cancel) {
 				m_Name = val;
 				NamePropertyChanged(val);
@@ -513,23 +498,10 @@ public:
 		MessageBoxW(NULL, wname, L"MyRegFreeCOMDotnetSrv", MB_ICONINFORMATION | MB_OK);
 	}
 
-	//virtual int GetClassInfo([Out] System::IntPtr *ppTI)
-	//{
-	//	return E_NOTIMPL;
-	//}
-
-	//virtual int GetGUID(DWORD dwGuidKind, GUID *pGuid)
-	//{
-	//	return E_NOTIMPL;
-	//}
-
+	// イベントの定義
 	event NamePropertyChangingDelegate ^NamePropertyChanging;
 	event NamePropertyChangedDelegate ^NamePropertyChanged;
 };
-
-// {3E607578-2BAB-40B2-97C4-662B7675E194}
-static const GUID CLSID_MyRegFreeCOMDotnetSrv =
-{ 0x3e607578, 0x2bab, 0x40b2,{ 0x97, 0xc4, 0x66, 0x2b, 0x76, 0x75, 0xe1, 0x94 } };
 
 /**
  * マネージドのCOM用のクラスファクトリ
@@ -546,7 +518,8 @@ public:
 			return CLASS_E_NOAGGREGATION;
 		}
 		
-		System::Guid guid = System::Guid(
+		// ネイティブのGUIDからSystem::Guidに変換
+		System::Guid guid(
 			riid.Data1, riid.Data2, riid.Data3,
 			riid.Data4[0], riid.Data4[1],
 			riid.Data4[2], riid.Data4[3],
@@ -559,7 +532,7 @@ public:
 			guid == GUID_IUnknown) {
 			// IUnknown, IDispatch、もしくは実装しているインターフェイスに合致すれば
 			// DotNETのMyRegFreeCOMDotnetSrvオブジェクトをgcnewで作成する。
-			MyRegFreeCOMDotnetSrv ^pImpl = gcnew MyRegFreeCOMDotnetSrv();
+			MyRegFreeCOMDotnetSrvImpl ^pImpl = gcnew MyRegFreeCOMDotnetSrvImpl();
 
 			// DotNETのオブジェクトから、COMインターフェイスを取得して返す.
 			*ppvObject = (void *)Marshal::GetComInterfaceForObject(pImpl, intf);
@@ -590,9 +563,11 @@ extern "C" HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPV
 	static MyRegFreeCOMCsSrvFactory factory2;
 
 	if (rclsid == CLSID_MyRegFreeCOMSrv) {
+		// C++ネイティブによるCOM実装
 		return factory.QueryInterface(riid, ppv);
 	}
 	if (rclsid == CLSID_MyRegFreeCOMDotnetSrv) {
+		// DOTNETによるマネージドのCOM実装
 		return factory2.QueryInterface(riid, ppv);
 	}
 
