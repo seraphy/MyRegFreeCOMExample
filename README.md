@@ -32,7 +32,7 @@ Gitリポジトリの生成も行うと、ウィザードが完了したとき�
 
 ウィザードで生成した直後の状態では、Windows DLLのエントリポイントの「DllMain」関数だけが定義されている。
 
-``DllMain``` 関数は、DLLがプロセスにロードされたとき、スレッドにアタッチされたとき等々のイベントで、この関数を呼び出す。
+```DllMain``` 関数は、DLLがプロセスにロードされたとき、スレッドにアタッチされたとき等々のイベントで、この関数を呼び出す。
 
 ここで重要なのはDLLのモジュールハンドルが取得されることである。
 
@@ -49,10 +49,10 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-		g_hModule = hModule;
-		break;
+        g_hModule = hModule;
+        break;
 
-	case DLL_THREAD_ATTACH:
+    case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:
         break;
